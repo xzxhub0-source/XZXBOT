@@ -9,12 +9,12 @@ const client = new Client({
 });
 
 // ==== CONFIGURATION ====
-const TOKEN = process.env.TOKEN;        // Bot token from .env
-const GUILD_ID = process.env.GUILD_ID;  // Server ID from .env
+const TOKEN = process.env.TOKEN;        // Bot token from .env or Railway
+const GUILD_ID = process.env.GUILD_ID;  // Server ID from .env or Railway
 const BOOSTER_ROLE_NAME = 'Booster';    // Role to assign to boosters
 const COLOR_INTERVAL = 15000;           // 15 seconds per color change
 
-// Pink → Purple gradient
+// Pink → Purple gradient colors
 const colors = [
     '#FFC0CB', // light pink
     '#FFB6C1',
@@ -30,7 +30,7 @@ let colorIndex = 0;
 // ==== BOT READY ====
 client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
-    
+
     // Start cycling role color
     setInterval(async () => {
         const guild = client.guilds.cache.get(GUILD_ID);
@@ -39,8 +39,12 @@ client.once('ready', () => {
         const role = guild.roles.cache.find(r => r.name === BOOSTER_ROLE_NAME);
         if (!role) return;
 
-        await role.setColor(colors[colorIndex]).catch(console.error);
-        colorIndex = (colorIndex + 1) % colors.length;
+        try {
+            await role.setColor(colors[colorIndex]);
+            colorIndex = (colorIndex + 1) % colors.length;
+        } catch (err) {
+            console.error('Error updating role color:', err);
+        }
     }, COLOR_INTERVAL);
 });
 
